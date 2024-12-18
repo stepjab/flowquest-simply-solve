@@ -19,18 +19,9 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   return (
     <div className="w-full max-w-2xl mx-auto">
       <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-xl p-8 animate-slideIn border border-medical-accent/20">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-semibold text-medical-text">
-            Предварительное определение риска развития сахарного диабета
-          </h1>
-          <div className="w-24 h-24">
-            <img
-              src="/lovable-uploads/9bcae850-5d01-471d-8948-af7cba9e390c.png"
-              alt="Medical device"
-              className="w-full h-full object-cover rounded-lg shadow-md"
-            />
-          </div>
-        </div>
+        <h1 className="text-2xl font-semibold text-medical-text mb-8">
+          Предварительное определение риска развития сахарного диабета
+        </h1>
         
         <p className="text-medical-primary mb-6 font-medium">
           Пройдите тест из 16 вопросов для определения предрасположенности развития сахарного диабета и получите рекомендации для диагностики
