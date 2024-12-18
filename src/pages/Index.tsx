@@ -7,6 +7,11 @@ import { Button } from "@/components/ui/button";
 
 const questions = [
   {
+    question: "Ваш возраст?",
+    type: "text",
+    placeholder: "Введите ваш возраст"
+  },
+  {
     question: "Каковы показатели вашего артериального давления?",
     info: [
       "Норма в 16-20 лет: 100-120/70-80",
@@ -36,6 +41,7 @@ const Index = () => {
   const [weight, setWeight] = useState("");
   const [height, setHeight] = useState("");
   const [bmiResult, setBmiResult] = useState("");
+  const [textInput, setTextInput] = useState("");
 
   const handleAnswer = (answer: string) => {
     const newAnswers = [...answers];
@@ -55,6 +61,10 @@ const Index = () => {
 
   const handleNext = () => {
     if (currentQuestion < questions.length - 1) {
+      if (questions[currentQuestion].type === "text") {
+        handleAnswer(textInput);
+        setTextInput("");
+      }
       setCurrentQuestion(currentQuestion + 1);
     }
   };
@@ -68,6 +78,20 @@ const Index = () => {
   const renderQuestionContent = () => {
     const currentQ = questions[currentQuestion];
     
+    if (currentQ.type === "text") {
+      return (
+        <div className="space-y-4">
+          <Input
+            type="number"
+            placeholder={currentQ.placeholder}
+            value={textInput}
+            onChange={(e) => setTextInput(e.target.value)}
+            className="w-full text-lg p-4 border-2 border-medical-primary focus:ring-2 focus:ring-medical-primary"
+          />
+        </div>
+      );
+    }
+
     if (currentQ.type === "bmi") {
       return (
         <div className="space-y-4">
