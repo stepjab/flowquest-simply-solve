@@ -146,7 +146,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen py-12 px-4 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <QuestionCard
         currentQuestion={currentQuestion + 1}
         totalQuestions={16}
