@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Диагностика диабета - Упрощенная версия</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f0f4ff 0%, #f9f0ff 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-card {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .title {
+            color: #374151;
+            font-size: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #10B981;
+            font-size: 16px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .progress {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .progress-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #10B981;
+        }
+
+        .progress-total {
+            color: #9CA3AF;
+        }
+
+        .question {
+            font-size: 18px;
+            margin-bottom: 24px;
+            color: #374151;
+        }
+
+        .info-box {
+            background: #F3F4F6;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .info-item {
+            color: #374151;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .answer-button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 2px solid #E5E7EB;
+            border-radius: 8px;
+            background: white;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .answer-button:hover {
+            border-color: #10B981;
+            background: #F3FEFA;
+        }
+
+        .answer-button.selected {
+            border-color: #10B981;
+            background: #F0FDF9;
+            color: #10B981;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #E5E7EB;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .calculate-button {
+            background: #10B981;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .calculate-button:hover {
+            background: #059669;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 24px;
+        }
+
+        .nav-button {
+            color: #10B981;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .nav-button:hover {
+            color: #059669;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const questions = [
+            {
+                question: "Ваш возраст?",
+                type: "text",
+                placeholder: "Введите ваш возраст"
+            },
+            {
+                question: "Каковы показатели вашего артериального давления?",
+                info: [
+                    "Норма в 16-20 лет: 100-120/70-80",
+                    "Норма 20-40 лет:120-130/70-80",
+                    "Норма 40-60 лет: до 140/до 90",
+                    "Норма от 60 лет: до 150/до 90",
+                ],
+                type: "buttons",
+                options: ["В норме", "Высокое"],
+            },
+            {
+                question: "Каков ваш показатель уровня холестерина?",
+                info: ["норма общего холестерина в крови у человека — 3,0-5,0 ммоль/л"],
+                type: "buttons",
+                options: ["В норме", "Высокий"],
+            },
+            {
+                question: "Рассчитайте ваш индекс массы тела",
+                type: "bmi",
+            },
+        ];
+
+        function App() {
+            const [currentQuestion, setCurrentQuestion] = React.useState(0);
+            const [answers, setAnswers] = React.useState(Array(questions.length).fill(""));
+            const [weight, setWeight] = React.useState("");
+            const [height, setHeight] = React.useState("");
+            const [bmiResult, setBmiResult] = React.useState("");
+            const [textInput, setTextInput] = React.useState("");
+
+            const handleAnswer = (answer) => {
+                const newAnswers = [...answers];
+                newAnswers[currentQuestion] = answer;
+                setAnswers(newAnswers);
+            };
+
+            const calculateBMI = () => {
+                const weightNum = parseFloat(weight);
+                const heightNum = parseFloat(height) / 100;
+                if (weightNum && heightNum) {
+                    const bmi = (weightNum / (heightNum * heightNum)).toFixed(1);
+                    setBmiResult(`Ваш ИМТ: ${bmi}`);
+                    handleAnswer(bmi);
+                }
+            };
+
+            const handleNext = () => {
+                if (currentQuestion < questions.length - 1) {
+                    if (questions[currentQuestion].type === "text") {
+                        handleAnswer(textInput);
+                        setTextInput("");
+                    }
+                    setCurrentQuestion(currentQuestion + 1);
+                }
+            };
+
+            const handleBack = () => {
+                if (currentQuestion > 0) {
+                    setCurrentQuestion(currentQuestion - 1);
+                }
+            };
+
+            const renderQuestionContent = () => {
+                const currentQ = questions[currentQuestion];
+                
+                if (currentQ.type === "text") {
+                    return (
+                        <div className="input-group">
+                            <input
+                                type="number"
+                                placeholder={currentQ.placeholder}
+                                value={textInput}
+                                onChange={(e) => setTextInput(e.target.value)}
+                                className="input-field"
+                            />
+                        </div>
+                    );
+                }
+
+                if (currentQ.type === "bmi") {
+                    return (
+                        <div className="input-group">
+                            <input
+                                type="number"
+                                placeholder="Вес, кг"
+                                value={weight}
+                                onChange={(e) => setWeight(e.target.value)}
+                                className="input-field"
+                            />
+                            <input
+                                type="number"
+                                placeholder="Рост, см"
+                                value={height}
+                                onChange={(e) => setHeight(e.target.value)}
+                                className="input-field"
+                            />
+                            <button 
+                                onClick={calculateBMI}
+                                className="calculate-button"
+                            >
+                                Рассчитать
+                            </button>
+                            {bmiResult && (
+                                <div className="info-box">
+                                    {bmiResult}
+                                </div>
+                            )}
+                        </div>
+                    );
+                }
+
+                return (
+                    <div>
+                        {currentQ.options?.map((option) => (
+                            <button
+                                key={option}
+                                className={`answer-button ${answers[currentQuestion] === option ? 'selected' : ''}`}
+                                onClick={() => handleAnswer(option)}
+                            >
+                                {option}
+                            </button>
+                        ))}
+                    </div>
+                );
+            };
+
+            return (
+                <div className="container question-card">
+                    <h1 className="title">
+                        Предварительное определение риска развития сахарного диабета
+                    </h1>
+                    
+                    <p className="subtitle">
+                        Пройдите тест из 16 вопросов для определения предрасположенности развития сахарного диабета и получите рекомендации для диагностики
+                    </p>
+
+                    <div className="progress">
+                        <span className="progress-number">
+                            {currentQuestion + 1}
+                        </span>
+                        <span className="progress-total">/{questions.length}</span>
+                    </div>
+
+                    {questions[currentQuestion].info && (
+                        <div className="info-box">
+                            {questions[currentQuestion].info.map((item, index) => (
+                                <p key={index} className="info-item">
+                                    • {item}
+                                </p>
+                            ))}
+                        </div>
+                    )}
+
+                    <h2 className="question">{questions[currentQuestion].question}</h2>
+
+                    {renderQuestionContent()}
+
+                    <div className="navigation">
+                        {currentQuestion > 0 ? (
+                            <button
+                                onClick={handleBack}
+                                className="nav-button"
+                            >
+                                ← Назад
+                            </button>
+                        ) : (
+                            <div />
+                        )}
+                        <button
+                            onClick={handleNext}
+                            className="nav-button"
+                        >
+                            Далее →
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
