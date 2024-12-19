@@ -57,10 +57,15 @@
         }
 
         .question-container {
+            display: none; /* По умолчанию скрыт */
             background: #F3F4F6;
             padding: 16px;
             border-radius: 8px;
             margin-bottom: 24px;
+        }
+
+        .question-container.has-info {
+            display: block; /* Показываем только если есть info */
         }
 
         .question {
@@ -229,6 +234,44 @@
                 question: "Ваш уровень заработка?",
                 type: "text",
                 placeholder: "Введите сумму в рублях"
+            },
+            {
+                question: "Ваш возраст?",
+                type: "text",
+                placeholder: "Введите возраст"
+            },
+            {
+                question: "Ваш рост и вес?",
+                type: "bmi",
+                info: [
+                    "Введите ваш рост в сантиметрах",
+                    "Введите ваш вес в килограммах"
+                ]
+            },
+            {
+                question: "Вы курите?",
+                type: "buttons",
+                options: ["Да", "Нет", "Бросил(а)"]
+            },
+            {
+                question: "Как часто вы употребляете алкоголь?",
+                type: "buttons",
+                options: ["Не употребляю", "Редко", "Умеренно", "Часто"]
+            },
+            {
+                question: "Есть ли у вас родственники с диабетом?",
+                type: "buttons",
+                options: ["Да", "Нет", "Не знаю"]
+            },
+            {
+                question: "Занимаетесь ли вы физической активностью?",
+                info: [
+                    "Регулярно - 3-4 раза в неделю",
+                    "Иногда - 1-2 раза в неделю",
+                    "Редко - несколько раз в месяц"
+                ],
+                type: "buttons",
+                options: ["Регулярно", "Иногда", "Редко", "Не занимаюсь"]
             }
         ];
 
@@ -256,6 +299,8 @@
                 });
             }
 
+            const questionContainer = document.querySelector('.question-container');
+            questionContainer.classList.toggle('has-info', !!currentQ.info);
             const questionContent = document.getElementById('question-content');
             questionContent.innerHTML = '';
 
@@ -313,7 +358,6 @@
                     button.className = `answer-button ${answers[currentQuestion] === option ? 'selected' : ''}`;
                     button.innerText = option;
                     button.onclick = () => {
-                        // Немедленно обновляем стили всех кнопок
                         questionContent.querySelectorAll('.answer-button').forEach(btn => {
                             btn.classList.remove('selected');
                         });
