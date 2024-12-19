@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Диагностика диабета - Упрощенная версия</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -158,9 +155,33 @@
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div class="container question-card">
+        <h1 class="title">
+            Предварительное определение риска развития сахарного диабета
+        </h1>
 
-    <script type="text/babel">
+        <p class="subtitle">
+            Пройдите тест из 16 вопросов для определения предрасположенности развития сахарного диабета и получите рекомендации для диагностики
+        </p>
+
+        <div class="progress">
+            <span class="progress-number" id="progress-number">1</span>
+            <span class="progress-total" id="progress-total">/4</span>
+        </div>
+
+        <div class="info-box" id="info-box"></div>
+
+        <h2 class="question" id="question"></h2>
+
+        <div id="question-content"></div>
+
+        <div class="navigation">
+            <button class="nav-button" id="back-button" onclick="handleBack()">← Назад</button>
+            <button class="nav-button" id="next-button" onclick="handleNext()">Далее →</button>
+        </div>
+    </div>
+
+    <script>
         const questions = [
             {
                 question: "Ваш возраст?",
@@ -190,164 +211,125 @@
             },
         ];
 
-        function App() {
-            const [currentQuestion, setCurrentQuestion] = React.useState(0);
-            const [answers, setAnswers] = React.useState(Array(questions.length).fill(""));
-            const [weight, setWeight] = React.useState("");
-            const [height, setHeight] = React.useState("");
-            const [bmiResult, setBmiResult] = React.useState("");
-            const [textInput, setTextInput] = React.useState("");
+        let currentQuestion = 0;
+        let answers = Array(questions.length).fill("");
+        let weight = "";
+        let height = "";
+        let bmiResult = "";
+        let textInput = "";
 
-            const handleAnswer = (answer) => {
-                const newAnswers = [...answers];
-                newAnswers[currentQuestion] = answer;
-                setAnswers(newAnswers);
-            };
+        function renderQuestion() {
+            const currentQ = questions[currentQuestion];
+            document.getElementById('question').innerText = currentQ.question;
+            document.getElementById('progress-number').innerText = currentQuestion + 1;
+            document.getElementById('progress-total').innerText = `/${questions.length}`;
 
-            const calculateBMI = () => {
-                const weightNum = parseFloat(weight);
-                const heightNum = parseFloat(height) / 100;
-                if (weightNum && heightNum) {
-                    const bmi = (weightNum / (heightNum * heightNum)).toFixed(1);
-                    setBmiResult(`Ваш ИМТ: ${bmi}`);
-                    handleAnswer(bmi);
+            const infoBox = document.getElementById('info-box');
+            infoBox.innerHTML = '';
+            if (currentQ.info) {
+                currentQ.info.forEach(item => {
+                    const infoItem = document.createElement('p');
+                    infoItem.className = 'info-item';
+                    infoItem.innerText = `• ${item}`;
+                    infoBox.appendChild(infoItem);
+                });
+            }
+
+            const questionContent = document.getElementById('question-content');
+            questionContent.innerHTML = '';
+
+            if (currentQ.type === "text") {
+                const inputGroup = document.createElement('div');
+                inputGroup.className = 'input-group';
+                const inputField = document.createElement('input');
+                inputField.type = 'number';
+                inputField.placeholder = currentQ.placeholder;
+                inputField.value = textInput;
+                inputField.className = 'input-field';
+                inputField.oninput = (e) => { textInput = e.target.value; };
+                inputGroup.appendChild(inputField);
+                questionContent.appendChild(inputGroup);
+            } else if (currentQ.type === "bmi") {
+                const inputGroup = document.createElement('div');
+                inputGroup.className = 'input-group';
+
+                const weightInput = document.createElement('input');
+                weightInput.type = 'number';
+                weightInput.placeholder = 'Вес, кг';
+                weightInput.value = weight;
+                weightInput.className = 'input-field';
+                weightInput.oninput = (e) => { weight = e.target.value; };
+                inputGroup.appendChild(weightInput);
+
+                const heightInput = document.createElement('input');
+                heightInput.type = 'number';
+                heightInput.placeholder = 'Рост, см';
+                heightInput.value = height;
+                heightInput.className = 'input-field';
+                heightInput.oninput = (e) => { height = e.target.value; };
+                inputGroup.appendChild(heightInput);
+
+                const calculateButton = document.createElement('button');
+                calculateButton.innerText = 'Рассчитать';
+                calculateButton.className = 'calculate-button';
+                calculateButton.onclick = calculateBMI;
+                inputGroup.appendChild(calculateButton);
+
+                questionContent.appendChild(inputGroup);
+
+                if (bmiResult) {
+                    const infoBox = document.createElement('div');
+                    infoBox.className = 'info-box';
+                    infoBox.innerText = bmiResult;
+                    questionContent.appendChild(infoBox);
                 }
-            };
+            } else {
+                currentQ.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = `answer-button ${answers[currentQuestion] === option ? 'selected' : ''}`;
+                    button.innerText = option;
+                    button.onclick = () => handleAnswer(option);
+                    questionContent.appendChild(button);
+                });
+            }
 
-            const handleNext = () => {
-                if (currentQuestion < questions.length - 1) {
-                    if (questions[currentQuestion].type === "text") {
-                        handleAnswer(textInput);
-                        setTextInput("");
-                    }
-                    setCurrentQuestion(currentQuestion + 1);
-                }
-            };
-
-            const handleBack = () => {
-                if (currentQuestion > 0) {
-                    setCurrentQuestion(currentQuestion - 1);
-                }
-            };
-
-            const renderQuestionContent = () => {
-                const currentQ = questions[currentQuestion];
-                
-                if (currentQ.type === "text") {
-                    return (
-                        <div className="input-group">
-                            <input
-                                type="number"
-                                placeholder={currentQ.placeholder}
-                                value={textInput}
-                                onChange={(e) => setTextInput(e.target.value)}
-                                className="input-field"
-                            />
-                        </div>
-                    );
-                }
-
-                if (currentQ.type === "bmi") {
-                    return (
-                        <div className="input-group">
-                            <input
-                                type="number"
-                                placeholder="Вес, кг"
-                                value={weight}
-                                onChange={(e) => setWeight(e.target.value)}
-                                className="input-field"
-                            />
-                            <input
-                                type="number"
-                                placeholder="Рост, см"
-                                value={height}
-                                onChange={(e) => setHeight(e.target.value)}
-                                className="input-field"
-                            />
-                            <button 
-                                onClick={calculateBMI}
-                                className="calculate-button"
-                            >
-                                Рассчитать
-                            </button>
-                            {bmiResult && (
-                                <div className="info-box">
-                                    {bmiResult}
-                                </div>
-                            )}
-                        </div>
-                    );
-                }
-
-                return (
-                    <div>
-                        {currentQ.options?.map((option) => (
-                            <button
-                                key={option}
-                                className={`answer-button ${answers[currentQuestion] === option ? 'selected' : ''}`}
-                                onClick={() => handleAnswer(option)}
-                            >
-                                {option}
-                            </button>
-                        ))}
-                    </div>
-                );
-            };
-
-            return (
-                <div className="container question-card">
-                    <h1 className="title">
-                        Предварительное определение риска развития сахарного диабета
-                    </h1>
-                    
-                    <p className="subtitle">
-                        Пройдите тест из 16 вопросов для определения предрасположенности развития сахарного диабета и получите рекомендации для диагностики
-                    </p>
-
-                    <div className="progress">
-                        <span className="progress-number">
-                            {currentQuestion + 1}
-                        </span>
-                        <span className="progress-total">/{questions.length}</span>
-                    </div>
-
-                    {questions[currentQuestion].info && (
-                        <div className="info-box">
-                            {questions[currentQuestion].info.map((item, index) => (
-                                <p key={index} className="info-item">
-                                    • {item}
-                                </p>
-                            ))}
-                        </div>
-                    )}
-
-                    <h2 className="question">{questions[currentQuestion].question}</h2>
-
-                    {renderQuestionContent()}
-
-                    <div className="navigation">
-                        {currentQuestion > 0 ? (
-                            <button
-                                onClick={handleBack}
-                                className="nav-button"
-                            >
-                                ← Назад
-                            </button>
-                        ) : (
-                            <div />
-                        )}
-                        <button
-                            onClick={handleNext}
-                            className="nav-button"
-                        >
-                            Далее →
-                        </button>
-                    </div>
-                </div>
-            );
+            document.getElementById('back-button').style.display = currentQuestion > 0 ? 'block' : 'none';
         }
 
-        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+        function handleAnswer(answer) {
+            answers[currentQuestion] = answer;
+        }
+
+        function calculateBMI() {
+            const weightNum = parseFloat(weight);
+            const heightNum = parseFloat(height) / 100;
+            if (weightNum && heightNum) {
+                const bmi = (weightNum / (heightNum * heightNum)).toFixed(1);
+                bmiResult = `Ваш ИМТ: ${bmi}`;
+                handleAnswer(bmi);
+                renderQuestion();
+            }
+        }
+
+        function handleNext() {
+            if (currentQuestion < questions.length - 1) {
+                if (questions[currentQuestion].type === "text") {
+                    handleAnswer(textInput);
+                    textInput = "";
+                }
+                currentQuestion++;
+                renderQuestion();
+            }
+        }
+
+        function handleBack() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                renderQuestion();
+            }
+        }
+
+        renderQuestion();
     </script>
 </body>
 </html>
