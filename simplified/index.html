@@ -57,15 +57,21 @@
         }
 
         .question-container {
-            display: none; /* По умолчанию скрыт */
+            background: none;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .info-container {
             background: #F3F4F6;
             padding: 16px;
             border-radius: 8px;
             margin-bottom: 24px;
+            display: none;
         }
 
-        .question-container.has-info {
-            display: block; /* Показываем только если есть info */
+        .info-container.has-info {
+            display: block;
         }
 
         .question {
@@ -183,7 +189,7 @@
             <span class="progress-total" id="progress-total">/16</span>
         </div>
 
-        <div class="info-box" id="info-box"></div>
+        <div class="info-container" id="info-box"></div>
 
         <div class="question-container">
             <h2 class="question" id="question"></h2>
@@ -299,8 +305,9 @@
                 });
             }
 
-            const questionContainer = document.querySelector('.question-container');
-            questionContainer.classList.toggle('has-info', !!currentQ.info);
+            const infoContainer = document.querySelector('.info-container');
+            infoContainer.classList.toggle('has-info', !!currentQ.info);
+
             const questionContent = document.getElementById('question-content');
             questionContent.innerHTML = '';
 
