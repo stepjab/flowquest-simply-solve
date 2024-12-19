@@ -96,6 +96,8 @@
             border-color: #10B981;
             background: #F0FDF9;
             color: #10B981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+            transform: scale(1.02);
         }
 
         .input-group {
@@ -184,31 +186,41 @@
     <script>
         const questions = [
             {
-                question: "Ваш возраст?",
-                type: "text",
-                placeholder: "Введите ваш возраст"
+                question: "Проверяли ли вы холестерин за последние 5 лет?",
+                type: "buttons",
+                options: ["ДА", "НЕТ"],
             },
             {
-                question: "Каковы показатели вашего артериального давления?",
+                question: "Как бы вы оценили свое здоровье?",
                 info: [
-                    "Норма в 16-20 лет: 100-120/70-80",
-                    "Норма 20-40 лет:120-130/70-80",
-                    "Норма 40-60 лет: до 140/до 90",
-                    "Норма от 60 лет: до 150/до 90",
+                    "Шкала 1-5:",
+                    "1 = отличное, 2 = очень хорошее,",
+                    "3 = хорошее, 4 = удовлетворительное,",
+                    "5 = плохое"
                 ],
-                type: "buttons",
-                options: ["В норме", "Высокое"],
+                type: "text",
+                placeholder: "Введите оценку от 1 до 5"
             },
             {
-                question: "Каков ваш показатель уровня холестерина?",
-                info: ["норма общего холестерина в крови у человека — 3,0-5,0 ммоль/л"],
-                type: "buttons",
-                options: ["В норме", "Высокий"],
+                question: "Говоря о вашем психическом здоровье (стресс, депрессия, проблемы с эмоциями). Сколько дней из последних 30 оно было плохим?",
+                type: "text",
+                placeholder: "Введите количество дней"
             },
             {
-                question: "Рассчитайте ваш индекс массы тела",
-                type: "bmi",
+                question: "Теперь подумайте о своем физическом здоровье. Сколько дней из последних 30 вы испытывали физические боли?",
+                type: "text",
+                placeholder: "Введите количество дней"
             },
+            {
+                question: "Ваш пол?",
+                type: "buttons",
+                options: ["Мужской", "Женский"],
+            },
+            {
+                question: "Ваш уровень заработка?",
+                type: "text",
+                placeholder: "Введите сумму в рублях"
+            }
         ];
 
         let currentQuestion = 0;
@@ -222,7 +234,7 @@
             const currentQ = questions[currentQuestion];
             document.getElementById('question').innerText = currentQ.question;
             document.getElementById('progress-number').innerText = currentQuestion + 1;
-            document.getElementById('progress-total').innerText = `/${questions.length}`;
+            document.getElementById('progress-total').innerText = `/16`;
 
             const infoBox = document.getElementById('info-box');
             infoBox.innerHTML = '';
