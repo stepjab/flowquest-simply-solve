@@ -56,10 +56,17 @@
             color: #9CA3AF;
         }
 
+        .question-container {
+            background: #F3F4F6;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
         .question {
             font-size: 18px;
-            margin-bottom: 24px;
             color: #374151;
+            margin: 0;
         }
 
         .info-box {
@@ -168,12 +175,14 @@
 
         <div class="progress">
             <span class="progress-number" id="progress-number">1</span>
-            <span class="progress-total" id="progress-total">/4</span>
+            <span class="progress-total" id="progress-total">/16</span>
         </div>
 
         <div class="info-box" id="info-box"></div>
 
-        <h2 class="question" id="question"></h2>
+        <div class="question-container">
+            <h2 class="question" id="question"></h2>
+        </div>
 
         <div id="question-content"></div>
 
@@ -258,7 +267,10 @@
                 inputField.placeholder = currentQ.placeholder;
                 inputField.value = textInput;
                 inputField.className = 'input-field';
-                inputField.oninput = (e) => { textInput = e.target.value; };
+                inputField.oninput = (e) => { 
+                    textInput = e.target.value;
+                    answers[currentQuestion] = textInput;
+                };
                 inputGroup.appendChild(inputField);
                 questionContent.appendChild(inputGroup);
             } else if (currentQ.type === "bmi") {
@@ -300,7 +312,14 @@
                     const button = document.createElement('button');
                     button.className = `answer-button ${answers[currentQuestion] === option ? 'selected' : ''}`;
                     button.innerText = option;
-                    button.onclick = () => handleAnswer(option);
+                    button.onclick = () => {
+                        // Немедленно обновляем стили всех кнопок
+                        questionContent.querySelectorAll('.answer-button').forEach(btn => {
+                            btn.classList.remove('selected');
+                        });
+                        button.classList.add('selected');
+                        handleAnswer(option);
+                    };
                     questionContent.appendChild(button);
                 });
             }
